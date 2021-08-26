@@ -20,8 +20,12 @@ module.exports = {
       image: {
         type: Sequelize.STRING
       },
-      listasid: {
-        type: Sequelize.INTEGER
+      listAs: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        validate: {
+          notEmpty: true,
+        },
       },
       createdAt: {
         allowNull: false,
