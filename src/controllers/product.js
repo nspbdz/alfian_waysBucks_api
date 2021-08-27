@@ -6,7 +6,7 @@ exports.getProducts = async (req, res) => {
     const products = await product.findAll({
     
       attributes: {
-        exclude: [ "createdAt", "updatedAt"],
+        exclude: [ "idUser" ,"createdAt", "updatedAt"],
       },
     });
 
@@ -33,7 +33,7 @@ exports.getDetailProduct = async (req, res) => {
         id,
       },
       attributes: {
-        exclude: [ "createdAt", "updatedAt"],
+        exclude: [ "idUser" ,"createdAt", "updatedAt"],
       },
     });
 
@@ -74,7 +74,7 @@ exports.addProduct = async (req, res) => {
         id: newProduct.id
       },
       attributes: {
-        exclude: [ "createdAt", "updatedAt"],
+        exclude: [ "idUser" ,"createdAt", "updatedAt"],
       },
       
     });
@@ -130,7 +130,7 @@ exports.updateProduct = async (req, res) => {
         id,
       },
       attributes: {
-        exclude: ["createdAt", "updatedAt"],
+        exclude: ["idUser" , "createdAt", "updatedAt"],
       },
     });
     products = JSON.parse(JSON.stringify(products));

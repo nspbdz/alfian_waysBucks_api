@@ -18,6 +18,12 @@ module.exports = (sequelize, DataTypes) => {
       name: "idUser",
     },
   });
+  user.hasMany(models.toping, {
+    as: "topings",
+    foreignKey: {
+      name: "idUser",
+    },
+  });
     }
   };
   user.init({

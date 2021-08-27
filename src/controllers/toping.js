@@ -1,56 +1,6 @@
-const { product } = require("../../models");
+const { toping } = require("../../models");
 
 
-exports.getProducts = async (req, res) => {
-  try {
-    const products = await product.findAll({
-    
-      attributes: {
-        exclude: [ "createdAt", "updatedAt"],
-      },
-    });
-
-    res.send({
-      status: "success",
-      data: {
-        products,
-      },
-    });
-  } catch (error) {
-    console.log(error);
-    res.send({
-      status: "failed",
-      message: "Server Error",
-    });
-  }
-};
-
-exports.getDetailProduct = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const products = await product.findOne({
-      where: {
-        id,
-      },
-      attributes: {
-        exclude: [ "createdAt", "updatedAt"],
-      },
-    });
-
-    res.send({
-      status: "success",
-      data: {
-        products,
-      },
-    });
-  } catch (error) {
-    console.log(error);
-    res.send({
-      status: "failed",
-      message: "Server Error",
-    });
-  }
-};
 
 exports.addToping = async (req, res) => {
   const path = process.env.PATH_FILE
@@ -58,39 +8,39 @@ exports.addToping = async (req, res) => {
   try {
     const {...data } = req.body;
     const idUser = req.user.id
-    console.log(idUser)
-    console.log("idUser",req.user.id)
+    // console.log(idUser)
+    // console.log("idUser",req.user.id)
     
     // console.log("request file", req.file);
-    const newProduct = await product.create({
+    const newToping = await toping.create({
       ...data,
       image: req.file.filename,
       idUser: idUser
     });
 
 
-    let productData = await product.findOne({
+    let topingData = await toping.findOne({
       where: {
-        id: newProduct.id
+        id: newToping.id
       },
       attributes: {
-        exclude: [ "createdAt", "updatedAt"],
+        exclude: [ "idUser" ,"createdAt", "updatedAt"],
       },
       
     });
-    productData = JSON.parse(JSON.stringify(productData));
+    topingData = JSON.parse(JSON.stringify(topingData));
 
     res.send({
       status: "success...",
       data: {
-        ...productData,
-        image: path + productData.image,
+        ...topingData,
+        image: path + topingData.image,
       },
     });
     res.send({
       status: "success",
       message: "resource has successfully created",
-      data: productData
+      data: topingData
     });
   } catch (error) {
     console.log(error);
@@ -102,9 +52,59 @@ exports.addToping = async (req, res) => {
   }
 };
 
+exports.getTopings = async (req, res) => {
+  try {
+    const topings = await toping.findAll({
+    
+      attributes: {
+        exclude: [ "idUser" ,"createdAt", "updatedAt"],
+      },
+    });
+
+    res.send({
+      status: "success",
+      data: {
+        topings,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    res.send({
+      status: "failed",
+      message: "Server Error",
+    });
+  }
+};
+
+exports.getDetailToping = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const topings = await toping.findOne({
+      where: {
+        id,
+      },
+      attributes: {
+        exclude: [ "idUser" ,"createdAt", "updatedAt"],
+      },
+    });
+
+    res.send({
+      status: "success",
+      data: {
+        topings,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    res.send({
+      status: "failed",
+      message: "Server Error",
+    });
+  }
+};
 
 
-exports.updateProduct = async (req, res) => {
+exports.updateToping = async (req, res) => {
   const path = process.env.PATH_FILE
 
   try {
@@ -120,32 +120,32 @@ exports.updateProduct = async (req, res) => {
   }
   console.log(data)
 
-    await product.update(data, {
+    await toping.update(data, {
           where: {
             id,
       },
     });
-    let products = await product.findOne({
+    let topings = await toping.findOne({
       where: {
         id,
       },
       attributes: {
-        exclude: ["createdAt", "updatedAt"],
+        exclude: ["idUser" , "createdAt", "updatedAt"],
       },
     });
-    products = JSON.parse(JSON.stringify(products));
+    topings = JSON.parse(JSON.stringify(topings));
 
     res.send({
       status: "success...",
       data: {
-        ...products,
-        image: path + products.image,
+        ...topings,
+        image: path + topings.image,
       },
     });
     res.send({
       status: "success",
       message: "resource has successfully deleted",
-      data: products,
+      data: topings,
     });
   } catch (error) {
     // console.log(error)
@@ -156,24 +156,24 @@ exports.updateProduct = async (req, res) => {
   } 
 };
 
-exports.deleteProduct = async (req, res) => {
+exports.deleteToping = async (req, res) => {
   try {
     const { id } = req.params;
 
-    await product.destroy({  
+    await toping.destroy({  
       where: {
         id,
       },
     });
-    let productDelete = await product.findOne({
+    let topingDelete = await toping.findOne({
       where: {
         id,
       },
     });
     res.send({
       status: "success",
-      message: `Delete product id: ${id} finished`,
-      // data:productDelete
+      message: `Delete toping id: ${id} finished`,
+      // data:topingDelete
     });
   } catch (error) {
     console.log(error);

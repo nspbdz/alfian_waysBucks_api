@@ -11,6 +11,12 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      toping.belongsTo(models.user, {
+        as: "user",
+        foreignKey: {
+          name: "idUser",
+        },
+      });
     }
   };
   toping.init({
