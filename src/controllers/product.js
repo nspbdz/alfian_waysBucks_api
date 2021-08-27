@@ -52,25 +52,28 @@ exports.getDetailProduct = async (req, res) => {
   }
 };
 
-exports.createProduct = async (req, res) => {
+exports.addProduct = async (req, res) => {
   // const path = process.env.PATH_FILE
 
   try {
+    const { idUser } = req
+    console.log(idUser)
+
     let data = req.body
-    const photo = req.files.imageFile[0].filename
- 
+    const image = req.files.imageFile[0].filename
+    
     data = {
       ...data,
-      photo,
+      image,
   }
 
     const products = await product.create({
-      ...req.body,photo
+      ...req.body,image
     });
 
     const productDataStored = await product.findOne({
       where: {
-        name: req.body.name
+        title: req.body.title
       },
       
     });
