@@ -21,7 +21,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       listAs: {
-        type: Sequelize.STRING,
+        type: Sequelize.INTEGER,
         allowNull: false,
         validate: {
           notEmpty: true,

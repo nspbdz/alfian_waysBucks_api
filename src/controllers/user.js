@@ -31,7 +31,7 @@ exports.deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
 
-    await user.destroy({
+    await user.destroy({  
       where: {
         id,
       },
