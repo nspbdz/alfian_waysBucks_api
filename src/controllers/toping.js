@@ -52,7 +52,7 @@ exports.getDetailProduct = async (req, res) => {
   }
 };
 
-exports.addProduct = async (req, res) => {
+exports.addToping = async (req, res) => {
   const path = process.env.PATH_FILE
 
   try {

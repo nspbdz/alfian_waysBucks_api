@@ -1,175 +1,139 @@
-const { user } = require('../../models')
-const joi = require('joi')
-const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
+// import model
+const { user } = require("../../models");
+
+// import joi validation
+const Joi = require("joi");
+// import bcrypt
+const bcrypt = require("bcrypt");
+//import jsonwebtoken
+const jwt = require("jsonwebtoken");
 
 exports.register = async (req, res) => {
-    try {
-        const { email, password } = req.body
-        const data = req.body
- 
-        const schema = joi.object({
-            fullName: joi.string().min(3).required(),
-            email: joi.string().email().required(),
-            listAs: joi.number().required(),
-            password: joi.string().min(8).required()
-        })
+  // our validation schema here
 
-        const { error } = schema.validate(data)
+  const schema = Joi.object({
+    fullName: Joi.string().min(5).required(),
+    email: Joi.string().email().min(6).required(),
+    listAs: Joi.number().required(),
+    password: Joi.string().min(6).required(),
+  });
 
-        if (error) {
-            return res.send({
-                status: 'failed',
-                message: error.details[0].message
-            })
-        }
+  // do validation and get error object from schema.validate
+  const { error } = schema.validate(req.body);
 
-        const checkEmail = await user.findOne({
-            where: {
-                email
-            }
-        })
-
-        if (checkEmail) {
-            return res.send({
-                status: 'failed',
-                message: 'Email Already Registered'
-            })
-        }
-        const hashStrenght = 10
-        const hashedPassword = await bcrypt.hash(password, hashStrenght)
-
-        const dataUser = await user.create({
-            ...data,
-            password: hashedPassword
-        })
-
-        res.send({
-            status: 'success',
-            data: {
-                user: {
-                    fullname: dataUser.fullname,
-                    email: dataUser.email
-                }
-            }
-        })
-
-    } catch (error) {
-        console.log(error)
-        res.send({
-            status: 'failed',
-            message: 'Server Error'
-        })
-    }
-}
-
-exports.signin = async (req, res) => {
-    try {
-
-        const { email, password } = req.body
-        const data = req.body
-
-        const schema = joi.object({
-            email: joi.string().email().required(),
-            password: joi.string().min(8).required()
-        })
-
-        const { error } = schema.validate(data)
-
-        if (error) {
-            return res.send({
-                status: 'failed',
-                message: error.details[0].message
-            })
-        }
-
-        const checkEmail = await user.findOne({
-            where: {
-                email
-            }
-        })
-
-        if (!checkEmail) {
-            return res.send({
-                status: 'failed',
-                message: 'Email or Password dont match'
-            })
-        }
-
-        const isValidPassword = await bcrypt.compare(password, checkEmail.password)
-
-        if (!isValidPassword) {
-            return res.send({
-                status: 'failed',
-                massage: 'Email or Password dont match'
-            })
-        }
-
-        const secretKey = process.env.SECRET_KEY
-        // const secretKey = "process.env.SECRET_KEY"
-
-        const token = jwt.sign({
-            id: checkEmail.id
-        }, secretKey)
-
-        res.send({
-            status: 'success',
-            data: {
-                id: checkEmail.id,
-                listAs: checkEmail.listAs,
-                gender: checkEmail.gender,
-                fullname: checkEmail.fullname,
-                email: checkEmail.email,
-                token,
-              },
-            // data: {
-            //     user: {
-            //         fullname: checkEmail.fullname,
-            //         email: checkEmail.email,
-            //         token 
-            //     }
-            // }
-        })
-
-    } catch (error) {
-        console.log(error)
-        res.send({
-            status: 'failed',
-            message: 'Server Error'
-        })
-    }
-}
-exports.checkAuth = async (req, res) => {
-    try {
-      const id = req.id;
   
-      const dataUser = await user.findOne({
-        where: {
-          id,
-        },
-        attributes: {
-          exclude: ["createdAt", "updatedAt", "password"],
-        },
-      });
-  
-      if (!dataUser) {
-        return res.status(404).send({
-          status: "failed",
-        });
+  // if error exist send validation error message
+  if (error)
+    return res.status(400).send({
+      error: {
+        message: error.details[0].message,
+      },
+    });
+   
+  try {
+        const { email, password } = req.body
+    console.log(email)
+    const checkEmail = await user.findOne({
+      where: {
+          email
       }
-  
-      res.send({
-        status: "success",
-        data: {
-          name: dataUser.name,
-          email: dataUser.email,
-        },
-      });
-    } catch (error) {
-      console.log(error);
-      res.status({
+  })
+
+  if (checkEmail) {
+      return res.send({
+          status: 'failed',
+          message: 'Email Already Registered'
+      })
+  }
+    // we generate salt (random value) with 10 rounds
+    const salt = await bcrypt.genSalt(10);
+    // we hash password from request with salt
+    const hashedPassword = await bcrypt.hash(req.body.password, salt);
+
+    const newUser = await user.create({
+      fullName: req.body.fullName,
+      email: req.body.email,
+      listAs: req.body.listAs,
+      
+      password: hashedPassword,
+    });
+
+    // generate token
+    const token = jwt.sign({ id: user.id }, process.env.TOKEN_KEY);
+    
+    res.status(200).send({
+      status: "success...",
+      data: {
+        fullName: newUser.fullName,
+        email: newUser.email,
+        listAs: newUser.listAs,     
+        token
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      status: "failed",
+      message: "Server Error",
+    });
+  }
+};
+
+exports.login = async (req, res) => {
+  // our validation schema here
+  const schema = Joi.object({
+    email: Joi.string().email().min(6).required(),
+    password: Joi.string().min(6).required(),
+  });
+
+  // do validation and get error object from schema.validate
+  const { error } = schema.validate(req.body);
+
+  // if error exist send validation error message
+  if (error)
+    return res.status(400).send({
+      error: {
+        message: error.details[0].message,
+      },
+    });
+
+  try {
+    const userExist = await user.findOne({
+      where: {
+        email: req.body.email,
+      },
+      attributes: {
+        exclude: ["createdAt", "updatedAt"],
+      },
+    });
+    // compare password between entered from client and from database
+    const isValid = await bcrypt.compare(req.body.password, userExist.password);
+
+    // check if not valid then return response with status 400 (bad request)
+    if (!isValid) {
+      return res.status(400).send({
         status: "failed",
-        message: "Server Error",
+        message: "credential is invalid",
       });
     }
-  };
+
+    // generate token
+    const token = jwt.sign({ id: userExist.id }, process.env.TOKEN_KEY);
+
+    res.status(200).send({
+      status: "success...",
+      data: {
+        fullName: userExist.fullName,
+        email: userExist.email,
+        listAs: userExist.listAs,
+        token
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      status: "failed",
+      message: "Server Error",
+    });
+  }
+};

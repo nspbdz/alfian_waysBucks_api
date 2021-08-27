@@ -1,88 +1,65 @@
-const multer = require('multer')
+const multer = require("multer");
 
-exports.uploadFile = (imageFile, videoFile) => {
+exports.uploadFile = (imageFile) => {
+  const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, "uploads");
+    },
 
-    // init multer diskstorage
-    // Menentukan destination file upload
-    // Menentukan nama file (rename agar tidak ada file yang sama / ganda /double)
+    filename: function (req, file, cb) {
+      cb(null, `${Date.now()}-${file.originalname.replace(/\s/g, "")}`);
+    },
+  });
 
-    const storage = multer.diskStorage({
-        destination: function (req, file, cb) {
-            cb(null, "uploads") //Lokasi penyimpanan file
-        },
-        filename: function (req, file, cb) {
-            cb(null, Date.now() + "-" + file.originalname.replace(/\s/g, ""))
-        }
-    })
+  const fileFilter = function (req, file, cb) {
+    if (file.fieldname === imageFile) {
+      if (!file.originalname.match(/\.(jpg|JPG|jpeg|JPEG|png|PNG|gif|GIF)$/)) {
+        req.fileValidationError = {
+          message: "Only image files are accepted",
+        };
 
-    // Function untuk filter file berdasarkan type
-    const fileFilter = function (req, file, cb) {
-        if (file.fieldname === imageFile) {
-            if (!file.originalname.match(/\.(jpg|JPG|jpeg|JPEG|png|PNG|git|GIF)$/)) {
-                req.fileValidationError = {
-                    message: "Only image files are allowed!"
-                }
-                return cb(new Error("Only image files are allowed!"), false)
-            }
-        }
-
-        if (file.fieldname === videoFile) {
-            if (!file.originalname.match(/\.(mp4|mkv)$/)) {
-                req.fileValidationError = {
-                    message: "Only video files are allowed!"
-                }
-                return cb(new Error("Only video files are allowed!"), false)
-            }
-        }
-        cb(null, true)
+        return cb(new Error("Only image files are accepted"), false);
+      }
     }
+    cb(null, true);
+  };
 
-    const sizeInMb = 10
-    const maxSize = sizeInMb * 1000 * 1000 //10Mb
+  const sizeInMB = 10;
+  const maxSize = sizeInMB * 1000 * 1000;
 
-    // Eksekusi upload multer dan menentukan disk storage, validation dan maxSize file
-    const upload = multer({
-        storage,
-        fileFilter,
-        limits: {
-            fileSize: maxSize
+  // generate multer instance for upload
+
+  const upload = multer({
+    storage,
+    fileFilter,
+    limits: {
+      fileSize: maxSize,
+    },
+  }).single(imageFile);
+
+  return (req, res, next) => {
+    upload(req, res, function (err) {
+      if (req.fileValidationError) {
+        return res.status(400).send(req.fileValidationError);
+      }
+
+      if (!req.file && !err) {
+        return res.status(400).send({
+          message: "Please select files to upload",
+        });
+      }
+
+      if (err) {
+        if (err.code === "LIMIT_FILE_SIZE") {
+          return res.status(400).send({
+            message: "Max file size is 10MB",
+          });
         }
-    }).fields([
-        {
-            name: imageFile,
-            maxCount: 4
-        },
-        {
-            name: videoFile,
-            maxCount: 1
-        }
-    ]) //Menentukan jumlah file
 
-    return (req, res, next) => {
-        upload(req, res, function (err) {
-            // Pesan error jika validasi gagal
-            if (req.fileValidationError) {
-                return res.status(400).send(req.fileValidationError)
-            }
+        return res.status(400).send(err);
+      }
 
-            // Jika file upload tidak ada
-            if (!req.files && !err) {
-                return res.status(400).send({
-                    message: "Please select files to upload"
-                })
-            }
-
-            if (err) {
-                // Jika size melebihi batas
-                if (err.code === "LIMIT_FILE_SIZE") {
-                    return res.status(400).send({
-                        message: "Max file sized 10Mb"
-                    })
-                }
-                return res.status(400).send(err)
-            }
-
-            return next()
-        })
-    }
-}
+      return next();
+    });
+  };
+};
