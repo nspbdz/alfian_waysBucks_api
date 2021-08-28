@@ -1,14 +1,13 @@
 const { product } = require("../../models");
 
-
 exports.getProducts = async (req, res) => {
   const path = process.env.PATH_FILE
 
   try {
     let products = await product.findAll({
-    
+
       attributes: {
-        exclude: [ "idUser" ,"createdAt", "updatedAt"],
+        exclude: ["idUser","idProduct", "createdAt", "updatedAt"],
       },
     });
 
@@ -24,8 +23,7 @@ exports.getProducts = async (req, res) => {
       status: "success...",
       data: products
     });
-   
-   
+
   } catch (error) {
     console.log(error);
     res.send({
@@ -34,6 +32,41 @@ exports.getProducts = async (req, res) => {
     });
   }
 };
+
+// exports.getProducts = async (req, res) => {
+//   const path = process.env.PATH_FILE
+
+//   try {
+//     let products = await product.findAll({
+    
+//       attributes: {
+//         exclude: [ "createdAt", "updatedAt"],
+//       },
+//     });
+// // console.log(products)
+//     // products = JSON.parse(JSON.stringify(products));
+//     // products = products.map(product => {
+//     //   return {
+//     //     ...product,
+//     //     image: product.image ? path + product.image : null
+//     //   }
+//     // })
+
+//     res.send({
+
+//       status: "success...",
+//       data: products
+//     });
+   
+   
+//   } catch (error) {
+//     console.log(error);
+//     res.send({
+//       status: "failed",
+//       message: "Server Error",
+//     });
+//   }
+// };
 
 exports.getDetailProduct = async (req, res) => {
   const path = process.env.PATH_FILE
@@ -84,22 +117,22 @@ exports.addProduct = async (req, res) => {
     });
 
 
-    let productData = await product.findOne({
-      where: {
-        id: newProduct.id
-      },
-      attributes: {
-        exclude: [ "idUser" ,"createdAt", "updatedAt"],
-      },
+    // let productData = await product.findOne({
+    //   where: {
+    //     id: newProduct.id
+    //   },
+    //   attributes: {
+    //     exclude: [ "idUser" ,"createdAt", "updatedAt"],
+    //   },
       
-    });
-    productData = JSON.parse(JSON.stringify(productData));
+    // });
+    // productData = JSON.parse(JSON.stringify(productData));
 
     res.send({
       status: "success...",
       data: {
-        ...productData,
-        image: path + productData.image,
+        ...newProduct,
+        // image: path + productData.image,
       },
     });
     res.send({

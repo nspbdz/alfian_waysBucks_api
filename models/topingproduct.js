@@ -14,8 +14,8 @@ module.exports = (sequelize, DataTypes) => {
     }
   };
   topingProduct.init({
-    idProduct: DataTypes.INTEGER,
-    idToping: DataTypes.INTEGER
+    idToping: DataTypes.INTEGER,
+    idProduct: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'topingProduct',

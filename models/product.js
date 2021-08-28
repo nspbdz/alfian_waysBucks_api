@@ -17,11 +17,10 @@ module.exports = (sequelize, DataTypes) => {
           name: "idUser",
         },
       });
-      product.hasOne(models.order, {
+      product.belongsTo(models.order, {
         as: "order",
         foreignKey: {
-          name: "idProduct",
-          // primaryKey: true 
+          name: "id",
         },
       });
 
@@ -29,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
         product.belongsToMany(models.toping, {
           as: "toping",
           through: {
-            model: "topingProduct",
+            model: "producttoping",
             as: "bridge",
           },
           foreignKey: "idProduct",
@@ -39,7 +38,8 @@ module.exports = (sequelize, DataTypes) => {
   product.init({
     title: DataTypes.STRING,
     price: DataTypes.INTEGER,
-    image: DataTypes.STRING
+    image: DataTypes.STRING,
+    idUser: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'product',

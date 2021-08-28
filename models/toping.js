@@ -20,13 +20,14 @@ module.exports = (sequelize, DataTypes) => {
 
        // belongs to many products
        toping.belongsToMany(models.product, {
-        as: "products",
+        as: "product",
         through: {
-          model: "topingProduct",
+          model: "producttoping",
           as: "bridge",
         },
         foreignKey: "idToping",
       });
+
     }
   };
   toping.init({

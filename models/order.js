@@ -17,10 +17,10 @@ module.exports = (sequelize, DataTypes) => {
           name: "idTransaction",
         },
       });
-      order.belongsTo(models.product, {
-        as: "product",
+      order.hasMany(models.product, {
+        as: "product", 
         foreignKey: {
-          name: "idProduct",
+          name: "id",
         },
       });
 
