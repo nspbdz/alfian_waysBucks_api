@@ -1,4 +1,6 @@
-const { toping } = require("../../models");
+const {
+  toping
+} = require("../../models");
 
 
 
@@ -6,11 +8,13 @@ exports.addToping = async (req, res) => {
   const path = process.env.PATH_FILE
 
   try {
-    const {...data } = req.body;
+    const {
+      ...data
+    } = req.body;
     const idUser = req.user.id
     // console.log(idUser)
     // console.log("idUser",req.user.id)
-    
+
     // console.log("request file", req.file);
     const newToping = await toping.create({
       ...data,
@@ -24,9 +28,9 @@ exports.addToping = async (req, res) => {
         id: newToping.id
       },
       attributes: {
-        exclude: [ "idUser" ,"createdAt", "updatedAt"],
+        exclude: ["idUser", "createdAt", "updatedAt"],
       },
-      
+
     });
     topingData = JSON.parse(JSON.stringify(topingData));
 
@@ -53,20 +57,29 @@ exports.addToping = async (req, res) => {
 };
 
 exports.getTopings = async (req, res) => {
+  const path = process.env.PATH_FILE
+
   try {
-    const topings = await toping.findAll({
-    
+    let topings = await toping.findAll({
+
       attributes: {
-        exclude: [ "idUser" ,"createdAt", "updatedAt"],
+        exclude: ["idUser", "createdAt", "updatedAt"],
       },
     });
 
+    topings = JSON.parse(JSON.stringify(topings));
+    topings = topings.map(toping => {
+      return {
+        ...toping,
+        image: toping.image ? path + toping.image : null
+      }
+    })
+
     res.send({
-      status: "success",
-      data: {
-        topings,
-      },
+      status: "success...",
+      data: topings
     });
+
   } catch (error) {
     console.log(error);
     res.send({
@@ -77,23 +90,34 @@ exports.getTopings = async (req, res) => {
 };
 
 exports.getDetailToping = async (req, res) => {
+  const path = process.env.PATH_FILE
+
   try {
-    const { id } = req.params;
-    const topings = await toping.findOne({
+    const {
+      id
+    } = req.params;
+    // console.log(id)
+
+    let topings = await toping.findOne({
       where: {
         id,
       },
       attributes: {
-        exclude: [ "idUser" ,"createdAt", "updatedAt"],
+        exclude: ["idUser", "createdAt", "updatedAt"],
       },
     });
 
+
+    // console.log(topings)
+    topings = JSON.parse(JSON.stringify(topings));
     res.send({
-      status: "success",
+      status: "success...",
       data: {
-        topings,
+        ...topings,
+        image: path + topings.image,
       },
     });
+
   } catch (error) {
     console.log(error);
     res.send({
@@ -109,7 +133,9 @@ exports.updateToping = async (req, res) => {
 
   try {
     let data = req.body
-    const { id } = req.params;
+    const {
+      id
+    } = req.params;
     const idUser = req.user.id
     const image = req.file.filename
     // console.log(id)
@@ -117,12 +143,12 @@ exports.updateToping = async (req, res) => {
     data = {
       ...data,
       image
-  }
-  console.log(data)
+    }
+    console.log(data)
 
     await toping.update(data, {
-          where: {
-            id,
+      where: {
+        id,
       },
     });
     let topings = await toping.findOne({
@@ -130,7 +156,7 @@ exports.updateToping = async (req, res) => {
         id,
       },
       attributes: {
-        exclude: ["idUser" , "createdAt", "updatedAt"],
+        exclude: ["idUser", "createdAt", "updatedAt"],
       },
     });
     topings = JSON.parse(JSON.stringify(topings));
@@ -153,14 +179,16 @@ exports.updateToping = async (req, res) => {
       status: "failed",
       message: "internal server error",
     });
-  } 
+  }
 };
 
 exports.deleteToping = async (req, res) => {
   try {
-    const { id } = req.params;
+    const {
+      id
+    } = req.params;
 
-    await toping.destroy({  
+    await toping.destroy({
       where: {
         id,
       },

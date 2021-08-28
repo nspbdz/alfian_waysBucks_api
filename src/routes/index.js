@@ -7,6 +7,7 @@ const { getUsers, deleteUser, } = require("../controllers/user");
 
 const { deleteProduct,getProducts, getDetailProduct, addProduct, updateProduct } = require("../controllers/product");
 const {  addToping,getTopings,getDetailToping,updateToping,deleteToping } = require("../controllers/toping");
+const {  addTransaction,getTransactions } = require("../controllers/transaction");
 
 // const { auth } = require('../middlewares/auth')
 const { auth } = require('../middlewares/auth')
@@ -35,6 +36,10 @@ router.get("/topings",  getTopings)
 router.get("/toping/:id",  getDetailToping)
 router.patch("/toping/:id", auth, uploadFile("image"), updateToping)
 router.delete("/toping/:id", auth,deleteToping);
+
+
+router.post("/transaction", auth, addTransaction)
+router.get("/transactions", getTransactions)
 
 
 

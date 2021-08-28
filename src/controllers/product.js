@@ -2,20 +2,30 @@ const { product } = require("../../models");
 
 
 exports.getProducts = async (req, res) => {
+  const path = process.env.PATH_FILE
+
   try {
-    const products = await product.findAll({
+    let products = await product.findAll({
     
       attributes: {
         exclude: [ "idUser" ,"createdAt", "updatedAt"],
       },
     });
 
+    products = JSON.parse(JSON.stringify(products));
+    products = products.map(product => {
+      return {
+        ...product,
+        image: product.image ? path + product.image : null
+      }
+    })
+
     res.send({
-      status: "success",
-      data: {
-        products,
-      },
+      status: "success...",
+      data: products
     });
+   
+   
   } catch (error) {
     console.log(error);
     res.send({
@@ -26,9 +36,11 @@ exports.getProducts = async (req, res) => {
 };
 
 exports.getDetailProduct = async (req, res) => {
+  const path = process.env.PATH_FILE
+
   try {
     const { id } = req.params;
-    const products = await product.findOne({
+    let products = await product.findOne({
       where: {
         id,
       },
@@ -36,13 +48,16 @@ exports.getDetailProduct = async (req, res) => {
         exclude: [ "idUser" ,"createdAt", "updatedAt"],
       },
     });
+    products = JSON.parse(JSON.stringify(products));
 
     res.send({
-      status: "success",
+      status: "success...",
       data: {
-        products,
+        ...products,
+        image: path + products.image,
       },
     });
+   
   } catch (error) {
     console.log(error);
     res.send({
@@ -142,11 +157,7 @@ exports.updateProduct = async (req, res) => {
         image: path + products.image,
       },
     });
-    res.send({
-      status: "success",
-      message: "resource has successfully deleted",
-      data: products,
-    });
+   
   } catch (error) {
     // console.log(error)
     res.status(500).send({

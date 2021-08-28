@@ -17,6 +17,23 @@ module.exports = (sequelize, DataTypes) => {
           name: "idUser",
         },
       });
+      product.hasOne(models.order, {
+        as: "order",
+        foreignKey: {
+          name: "idProduct",
+          // primaryKey: true 
+        },
+      });
+
+        // belongs to many toping
+        product.belongsToMany(models.toping, {
+          as: "toping",
+          through: {
+            model: "topingProduct",
+            as: "bridge",
+          },
+          foreignKey: "idProduct",
+        });
     }
   };
   product.init({
