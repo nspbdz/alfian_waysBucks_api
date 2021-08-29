@@ -24,6 +24,13 @@ module.exports = (sequelize, DataTypes) => {
         },
       });
 
+      order.hasMany(models.topingProduct, {
+        as: "topingProduct", 
+        foreignKey: {
+          name: "idOrder",
+        },
+      });
+
     }
   };
   order.init({

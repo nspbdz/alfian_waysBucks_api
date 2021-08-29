@@ -11,11 +11,24 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      topingProduct.belongsTo(models.toping, {
+        as: "toping", 
+        foreignKey: {
+          name: "idToping",
+        },
+      });
+
+      topingProduct.belongsTo(models.order, {
+        as: "order", 
+        foreignKey: {
+          name: "idOrder",
+        },
+      });
     }
   };
   topingProduct.init({
     idToping: DataTypes.INTEGER,
-    idProduct: DataTypes.INTEGER
+    idOrder: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'topingProduct',

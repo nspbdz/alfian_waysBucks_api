@@ -12,32 +12,88 @@ exports.addTransaction = async (req, res) => {
     console.log("data", data.products)
     // console.log("idUser",req.user.id)
 
-    const newTransaction = await transaction.create({
-      idUser: idUser
-    });
+  //   const newTransaction = await transaction.create({
+  //     idUser: idUser,
+  //     status:"success",
+
+  //   });
 
   
-    data.products.map(async(item)=>{
-      const{id,qty}=item;
-      console.log(id,qty)
-    {item.topings.map(async(items)=>{
-      console.log("items",items)
-        const orders=  await topingProduct.create({
-      idProduct:id,
-      idToping:items,
-    })
-    })}
+  //   data.products.map(async(item)=>{
+  //     const{id,qty}=item;
+  //     console.log(id,qty)
+  //     const newOrders=  await order.create({
+  //       idProduct:id,
+  //       idTransaction:newTransaction.id,
+  //       qty:qty
+  //     })
 
-    const orders=  await order.create({
-      idProduct:id,
-      idTransaction:newTransaction.id,
-      qty:qty
-    })
-  })
+  //   {item.topings.map(async(items)=>{
+  //     console.log("items",items)
+  //       const newTopingproduct=  await topingProduct.create({
+  //     idOrder:newOrders.id,
+  //     idToping:items,
+  //   })
+  //   })}
+
+   
+  // })
+
+  let transactions = await transaction.findOne({
+    where: {  
+      id:7
+    },
+    
+    include: [
+      {
+        model: user,
+        as: "user",
+        attributes: {
+          exclude: ["image","listAs","createdAt", "updatedAt", "idUser","password"],
+        },
+      },
+      {
+        model: order,
+        as: "order",
+        attributes: {
+          exclude: [ "idTransaction","idProduct", "createdAt", "updatedAt", "idUser"],
+        },
+        include: [
+          {
+          model: product,
+          as: "product",
+          attributes: {
+            exclude: ["id","idProduct","idUser", "createdAt", "updatedAt"],
+          },
+        },
+
+        {
+          model: topingProduct,
+          as: "topingProduct",
+          attributes: {
+            exclude: ["idProduct", "createdAt", "idToping","idOrder","updatedAt"],
+          },
+          include:[
+                    {
+                      model: toping,
+                      as: "toping",
+                      attributes: {
+                        exclude: [ "image","price","idUser","idToping","idOrder", "createdAt", "updatedAt"],
+                      },
+                      }
+                  ]
+        },
+      ],
+      },
+    ],
+    attributes: {
+      exclude: [ "idUser" ,"createdAt", "updatedAt"],
+    },
+  });
     res.send({
       status: "success",
       message: "resource has successfully created",
-      // data: topingData
+      data: transactions
     });
   } catch (error) {
     console.log(error);
@@ -59,14 +115,14 @@ exports.getTransactions = async (req, res) => {
           model: user,
           as: "user",
           attributes: {
-            exclude: ["createdAt", "updatedAt", "idUser","password"],
+            exclude: ["image","listAs","createdAt", "updatedAt", "idUser","password"],
           },
         },
         {
           model: order,
           as: "order",
           attributes: {
-            exclude: ["id",  "idTransaction", "createdAt", "updatedAt", "idUser"],
+            exclude: [ "idTransaction","idProduct", "createdAt", "updatedAt", "idUser"],
           },
           include: [
             {
@@ -75,33 +131,32 @@ exports.getTransactions = async (req, res) => {
             attributes: {
               exclude: ["id","idProduct", "createdAt", "updatedAt"],
             },
+          },
+
+          {
+            model: topingProduct,
+            as: "topingProduct",
+            attributes: {
+              exclude: ["idProduct", "createdAt", "idToping","idOrder","updatedAt"],
+            },
             include:[
-              {
-                model: toping,
-                  as: "toping",
-                  through: {
-                    model: topingProduct,
-                    as: "bridge",
-                    attributes: [],
-                  },
-                  attributes: {
-                    exclude: [ "createdAt", "updatedAt"],
-                  },
-                }
-            ]
+                      {
+                        model: toping,
+                        as: "toping",
+                        attributes: {
+                          exclude: [ "image","price","idUser","idToping","idOrder", "createdAt", "updatedAt"],
+                        },
+                        }
+                    ]
           },
         ],
         },
       ],
-
       attributes: {
         exclude: ["password", "createdAt", "updatedAt"],
       },
     });
-
-   
     // console.log(transactions.order)
-
     res.send({
       status: "success",
       data: {
@@ -126,41 +181,45 @@ exports.getDetailTransaction = async (req, res) => {
       where: {  
         id,
       },
-       include: [
+      
+      include: [
         {
           model: user,
           as: "user",
           attributes: {
-            exclude: ["createdAt", "updatedAt", "idUser","password"],
+            exclude: ["image","listAs","createdAt", "updatedAt", "idUser","password"],
           },
         },
         {
           model: order,
           as: "order",
           attributes: {
-            exclude: ["id",  "idTransaction", "createdAt", "updatedAt", "idUser"],
+            exclude: [ "idTransaction","idProduct", "createdAt", "updatedAt", "idUser"],
           },
           include: [
             {
             model: product,
             as: "product",
             attributes: {
-              exclude: ["id","idProduct", "createdAt", "updatedAt"],
+              exclude: ["id","idProduct","idUser", "createdAt", "updatedAt"],
+            },
+          },
+
+          {
+            model: topingProduct,
+            as: "topingProduct",
+            attributes: {
+              exclude: ["idProduct", "createdAt", "idToping","idOrder","updatedAt"],
             },
             include:[
-              {
-                model: toping,
-                  as: "toping",
-                  through: {
-                    model: topingProduct,
-                    as: "bridge",
-                    attributes: [],
-                  },
-                  attributes: {
-                    exclude: [ "createdAt", "updatedAt"],
-                  },
-                }
-            ]
+                      {
+                        model: toping,
+                        as: "toping",
+                        attributes: {
+                          exclude: [ "image","price","idUser","idToping","idOrder", "createdAt", "updatedAt"],
+                        },
+                        }
+                    ]
           },
         ],
         },
@@ -171,21 +230,11 @@ exports.getDetailTransaction = async (req, res) => {
     });
    
     transactions = JSON.parse(JSON.stringify(transactions));
-    console.log(transactions.order.product)
     
-    transactions.order.map(async(item)=>{
-      console.log(item)
-      const{id,qty,product}=item;
-      console.log(id,qty,product)
-    })
-    // console.log(transactions.order.product)
-    // console.log(al)
-
     res.send({
       status: "success...",
       data: {
         ...transactions,
-        // image: path  console.log(transactions)+ products.image,
       },
     });
    
@@ -197,63 +246,3 @@ exports.getDetailTransaction = async (req, res) => {
     });
   }
 };
-// exports.getDetailTransaction = async (req, res) => {
-  
-//   try {
-//     const { id } = req.params;
-
-//     const transactions = transaction.findOne({
-//       where: {
-//         id,
-//       },
-//       // include: [
-//       //   {
-//       //     model: user,
-//       //     as: "user",
-//       //     attributes: {
-//       //       exclude: ["createdAt", "updatedAt", "idUser","password"],
-//       //     },
-//       //   },
-//       //   {
-//       //     model: order,
-//       //     as: "order",
-//       //     attributes: {
-//       //       exclude: ["id",  "idTransaction", "createdAt", "updatedAt", "idUser"],
-//       //     },
-//       //     include: [
-//       //       {
-//       //       model: product,
-//       //       as: "product",
-//       //       attributes: {
-//       //         exclude: ["id","idProduct", "createdAt", "updatedAt"],
-//       //       },
-//       //       include:[
-//       //         {
-//       //           model: toping,
-//       //             as: "toping",
-//       //             through: {
-//       //               model: topingProduct,
-//       //               as: "bridge",
-//       //               attributes: [],
-//       //             },
-//       //             attributes: {
-//       //               exclude: [ "createdAt", "updatedAt"],
-//       //             },
-//       //           }
-//       //       ]
-//       //     },
-//       //   ],
-//       //   },
-//       // ],
-
-//       attributes: {
-//         exclude: ["password", "createdAt", "updatedAt"],
-//       },
-      
-//     })
-    
-//   } catch (error) {
-    
-//   }
-   
-// }

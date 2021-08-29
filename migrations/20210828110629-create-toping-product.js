@@ -9,19 +9,19 @@ module.exports = {
         type: Sequelize.INTEGER
       },
      
-      idToping: {
+      idOrder: {
         type: Sequelize.INTEGER,
         references: { 
-          model: "topings",
+          model: "orders",
           key: "id",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
-      idProduct: {
+      idToping: {
         type: Sequelize.INTEGER,
         references: {
-          model: "products",
+          model: "topings",
           key: "id",
         },
         onUpdate: "CASCADE",

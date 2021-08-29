@@ -39,8 +39,8 @@ router.delete("/toping/:id", auth,deleteToping);
 
 
 router.post("/transaction", auth, addTransaction)
-router.get("/transactions", getTransactions)
-router.get("/transaction/:id", getDetailTransaction)
+router.get("/transactions", auth,getTransactions)
+router.get("/transaction/:id", auth,getDetailTransaction)
 
 
 

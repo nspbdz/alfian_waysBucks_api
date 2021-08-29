@@ -24,15 +24,18 @@ module.exports = (sequelize, DataTypes) => {
         },
       });
 
+
+
+      
         // belongs to many toping
-        product.belongsToMany(models.toping, {
-          as: "toping",
-          through: {
-            model: "producttoping",
-            as: "bridge",
-          },
-          foreignKey: "idProduct",
-        });
+        // product.belongsToMany(models.toping, {
+        //   as: "toping",
+        //   through: {
+        //     model: "producttoping",
+        //     as: "bridge",
+        //   },
+        //   foreignKey: "idProduct",
+        // });
     }
   };
   product.init({
