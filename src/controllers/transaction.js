@@ -10,34 +10,34 @@ exports.addTransaction = async (req, res) => {
     console.log(idUser)
     console.log(data)
     console.log("data", data.products)
-    // console.log("idUser",req.user.id)
+    console.log("idUser",req.user.id)
 
-  //   const newTransaction = await transaction.create({
-  //     idUser: idUser,
-  //     status:"success",
+    const newTransaction = await transaction.create({
+      idUser: idUser,
+      status:"success",
 
-  //   });
+    });
 
   
-  //   data.products.map(async(item)=>{
-  //     const{id,qty}=item;
-  //     console.log(id,qty)
-  //     const newOrders=  await order.create({
-  //       idProduct:id,
-  //       idTransaction:newTransaction.id,
-  //       qty:qty
-  //     })
+    data.products.map(async(item)=>{
+      const{id,qty}=item;
+      console.log(id,qty)
+      const newOrders=  await order.create({
+        idProduct:id,
+        idTransaction:newTransaction.id,
+        qty:qty
+      })
 
-  //   {item.topings.map(async(items)=>{
-  //     console.log("items",items)
-  //       const newTopingproduct=  await topingProduct.create({
-  //     idOrder:newOrders.id,
-  //     idToping:items,
-  //   })
-  //   })}
+    {item.topings.map(async(items)=>{
+      console.log("items",items)
+        const newTopingproduct=  await topingProduct.create({
+      idOrder:newOrders.id,
+      idToping:items,
+    })
+    })}
 
    
-  // })
+  })
 
   let transactions = await transaction.findOne({
     where: {  
@@ -157,6 +157,7 @@ exports.getTransactions = async (req, res) => {
       },
     });
     // console.log(transactions.order)
+    
     res.send({
       status: "success",
       data: {
@@ -238,6 +239,83 @@ exports.getDetailTransaction = async (req, res) => {
       },
     });
    
+  } catch (error) {
+    console.log(error);
+    res.send({
+      status: "failed",
+      message: "Server Error",
+    });
+  }
+};
+
+exports.updateTransaction = async (req, res) => {
+  const path = process.env.PATH_FILE
+
+  try {
+    let data = req.body
+    const { id } = req.params;
+    const idUser = req.user.id
+    const attachment = req.file.filename
+    // console.log(id)
+    // console.log("image",image)
+    data = {
+      ...data,
+      attachment
+  }
+  console.log(data)  
+
+    await transaction.update(data, {
+          where: {
+            id,
+      },
+    });
+    let transactions = await transaction.findOne({
+      where: {
+        id,
+      },
+      attributes: {
+        exclude: ["idUser" , "createdAt", "updatedAt"],
+      },
+    });
+    transactions = JSON.parse(JSON.stringify(transactions));
+    res.send({
+      status: "success...",
+      data: {
+        ...transactions,
+        attachment: path + transactions.attachment,
+      },
+    });
+   
+  } catch (error) {
+    // console.log(error)
+    res.status(500).send({
+      status: "failed",
+      message: "internal server error",
+    });
+  } 
+};
+
+exports.deleteTransaction = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    await transaction.destroy({  
+      where: {
+        id,
+      },
+    });
+    let transactions = await transaction.findOne({
+      where: {
+        id,
+      },
+    });
+    res.send({
+      status: "success",
+      message: `Delete transaction id: ${id} finished`,
+      data:{
+        id:id
+      }
+    });
   } catch (error) {
     console.log(error);
     res.send({

@@ -5,9 +5,9 @@ const { register, login, } = require('../controllers/auth');
 
 const { getUsers, deleteUser, } = require("../controllers/user");
 
-const { deleteProduct,getProducts, getDetailProduct, addProduct, updateProduct } = require("../controllers/product");
-const {  addToping,getTopings,getDetailToping,updateToping,deleteToping } = require("../controllers/toping");
-const {  addTransaction,getTransactions,getDetailTransaction } = require("../controllers/transaction");
+const { deleteProduct, getProducts, getDetailProduct, addProduct, updateProduct } = require("../controllers/product");
+const { addToping, getTopings, getDetailToping, updateToping, deleteToping } = require("../controllers/toping");
+const { addTransaction, getTransactions, getDetailTransaction, updateTransaction, deleteTransaction } = require("../controllers/transaction");
 
 // const { auth } = require('../middlewares/auth')
 const { auth } = require('../middlewares/auth')
@@ -24,23 +24,27 @@ router.delete("/user/:id", deleteUser);
 
 router.get("/products", getProducts);
 router.get("/product/:id", getDetailProduct);
-router.post("/product", auth,uploadFile("image"), addProduct)
+router.post("/product", auth, uploadFile("image"), addProduct)
 //update dengan gambar
 router.patch("/product/:id", auth, uploadFile("image"), updateProduct)
-router.delete("/product/:id", auth,deleteProduct);
+router.delete("/product/:id", auth, deleteProduct);
 //update tanpa gambar
 // router.patch("/product/:id", auth, updateProduct,)
 
-router.post("/toping", auth,uploadFile("image"), addToping)
-router.get("/topings",  getTopings)
-router.get("/toping/:id",  getDetailToping)
+router.post("/toping", auth, uploadFile("image"), addToping)
+router.get("/topings", getTopings)
+router.get("/toping/:id", getDetailToping)
 router.patch("/toping/:id", auth, uploadFile("image"), updateToping)
-router.delete("/toping/:id", auth,deleteToping);
+router.delete("/toping/:id", auth, deleteToping);
 
 
 router.post("/transaction", auth, addTransaction)
-router.get("/transactions", auth,getTransactions)
-router.get("/transaction/:id", auth,getDetailTransaction)
+router.get("/transactions", auth, getTransactions)
+router.get("/transaction/:id", auth, getDetailTransaction)
+router.patch("/transaction/:id", auth, uploadFile("image"), updateTransaction)
+router.delete("/transaction/:id", auth, deleteTransaction);
+
+
 
 
 
