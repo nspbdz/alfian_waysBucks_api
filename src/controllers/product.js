@@ -73,16 +73,18 @@ exports.getDetailProduct = async (req, res) => {
 
   try {
     const { id } = req.params;
+    console.log(id)
     let products = await product.findOne({
       where: {
-        id,
+        id:id
       },
       attributes: {
         exclude: [ "idUser" ,"createdAt", "updatedAt"],
       },
     });
-    products = JSON.parse(JSON.stringify(products));
-
+   
+   products = JSON.parse(JSON.stringify(products))
+ 
     res.send({
       status: "success...",
       data: {
