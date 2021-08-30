@@ -1,4 +1,4 @@
-const { transaction, order, product, toping,topingProduct, user } = require("../../models");
+const { transaction, order, product, toping, topingProduct, user } = require("../../models");
 
 exports.addTransaction = async (req, res) => {
   const path = process.env.PATH_FILE
@@ -10,86 +10,88 @@ exports.addTransaction = async (req, res) => {
     console.log(idUser)
     console.log(data)
     console.log("data", data.products)
-    console.log("idUser",req.user.id)
+    console.log("idUser", req.user.id)
 
     const newTransaction = await transaction.create({
       idUser: idUser,
-      status:"success",
+      status: "success",
 
     });
 
-  
-    data.products.map(async(item)=>{
-      const{id,qty}=item;
-      console.log(id,qty)
-      const newOrders=  await order.create({
-        idProduct:id,
-        idTransaction:newTransaction.id,
-        qty:qty
+
+    data.products.map(async (item) => {
+      const { id, qty } = item;
+      console.log(id, qty)
+      const newOrders = await order.create({
+        idProduct: id,
+        idTransaction: newTransaction.id,
+        qty: qty
       })
 
-    {item.topings.map(async(items)=>{
-      console.log("items",items)
-        const newTopingproduct=  await topingProduct.create({
-      idOrder:newOrders.id,
-      idToping:items,
+      {
+        item.topings.map(async (items) => {
+          console.log("items", items)
+          const newTopingproduct = await topingProduct.create({
+            idOrder: newOrders.id,
+            idToping: items,
+          })
+        })
+      }
+
+
     })
-    })}
 
-   
-  })
-
-  let transactions = await transaction.findOne({
-    where: {  
-      id:7
-    },
-    
-    include: [
-      {
-        model: user,
-        as: "user",
-        attributes: {
-          exclude: ["image","listAs","createdAt", "updatedAt", "idUser","password"],
-        },
+    let transactions = await transaction.findOne({
+      where: {
+        id: 7
       },
-      {
-        model: order,
-        as: "order",
-        attributes: {
-          exclude: [ "idTransaction","idProduct", "createdAt", "updatedAt", "idUser"],
-        },
-        include: [
-          {
-          model: product,
-          as: "product",
-          attributes: {
-            exclude: ["id","idProduct","idUser", "createdAt", "updatedAt"],
-          },
-        },
 
+      include: [
         {
-          model: topingProduct,
-          as: "topingProduct",
+          model: user,
+          as: "user",
           attributes: {
-            exclude: ["idProduct", "createdAt", "idToping","idOrder","updatedAt"],
+            exclude: ["image", "listAs", "createdAt", "updatedAt", "idUser", "password"],
           },
-          include:[
-                    {
-                      model: toping,
-                      as: "toping",
-                      attributes: {
-                        exclude: [ "image","price","idUser","idToping","idOrder", "createdAt", "updatedAt"],
-                      },
-                      }
-                  ]
+        },
+        {
+          model: order,
+          as: "order",
+          attributes: {
+            exclude: ["idTransaction", "idProduct", "createdAt", "updatedAt", "idUser"],
+          },
+          include: [
+            {
+              model: product,
+              as: "product",
+              attributes: {
+                exclude: ["id", "idProduct", "idUser", "createdAt", "updatedAt"],
+              },
+            },
+
+            {
+              model: topingProduct,
+              as: "topingProduct",
+              attributes: {
+                exclude: ["idProduct", "createdAt", "idToping", "idOrder", "updatedAt"],
+              },
+              include: [
+                {
+                  model: toping,
+                  as: "toping",
+                  attributes: {
+                    exclude: ["image", "price", "idUser", "idToping", "idOrder", "createdAt", "updatedAt"],
+                  },
+                }
+              ]
+            },
+          ],
         },
       ],
+      attributes: {
+        exclude: ["idUser", "createdAt", "updatedAt"],
       },
-    ],
-    attributes: {
-      exclude: [ "idUser" ,"createdAt", "updatedAt"],
-    },
-  });
+    });
     res.send({
       status: "success",
       message: "resource has successfully created",
@@ -107,57 +109,82 @@ exports.addTransaction = async (req, res) => {
 
 
 exports.getTransactions = async (req, res) => {
+  const path = process.env.PATH_FILE
+
   try {
-    const transactions = await transaction.findAll({
+    let transactions = await transaction.findAll({
 
       include: [
         {
           model: user,
           as: "user",
           attributes: {
-            exclude: ["image","listAs","createdAt", "updatedAt", "idUser","password"],
+            exclude: ["image", "listAs", "createdAt", "updatedAt", "idUser", "password"],
           },
         },
         {
           model: order,
           as: "order",
           attributes: {
-            exclude: [ "idTransaction","idProduct", "createdAt", "updatedAt", "idUser"],
+            exclude: ["idTransaction", "idProduct", "createdAt", "updatedAt", "idUser"],
           },
           include: [
             {
-            model: product,
-            as: "product",
-            attributes: {
-              exclude: ["id","idProduct", "createdAt", "updatedAt"],
+              model: product,
+              as: "product",
+              attributes: {
+                exclude: ["id", "idProduct", "createdAt", "updatedAt"],
+              },
             },
-          },
 
-          {
-            model: topingProduct,
-            as: "topingProduct",
-            attributes: {
-              exclude: ["idProduct", "createdAt", "idToping","idOrder","updatedAt"],
+            {
+              model: topingProduct,
+              as: "topingProduct",
+              attributes: {
+                exclude: ["idProduct", "createdAt", "idToping", "idOrder", "updatedAt"],
+              },
+              include: [
+                {
+                  model: toping,
+                  as: "toping",
+                  attributes: {
+                    exclude: ["image", "price", "idUser", "idToping", "idOrder", "createdAt", "updatedAt"],
+                  },
+                }
+              ]
             },
-            include:[
-                      {
-                        model: toping,
-                        as: "toping",
-                        attributes: {
-                          exclude: [ "image","price","idUser","idToping","idOrder", "createdAt", "updatedAt"],
-                        },
-                        }
-                    ]
-          },
-        ],
+          ],
         },
       ],
       attributes: {
-        exclude: ["password", "createdAt", "updatedAt"],
+        exclude: ["idUser", "password", "createdAt", "updatedAt"],
       },
     });
-    // console.log(transactions.order)
-    
+    transactions = JSON.parse(JSON.stringify(transactions))
+
+    transactions = transactions.map((transaction) => {
+      transaction = {
+        ...transaction,
+        attachment: transaction.attachment ? path + transaction.attachment : null,
+        // photo: transaction.order.product.photo ? path + transaction.order.product.photo : null,
+
+        userOrder: transaction.order.map((orders) => {
+          orders = {
+            ...orders,
+            product: {
+              ...orders.product,
+              image: orders.product.image ? path + orders.product.image : null,
+
+            },
+          }
+          return orders
+        }),
+      }
+      return transaction
+
+    })
+
+
     res.send({
       status: "success",
       data: {
@@ -179,66 +206,83 @@ exports.getDetailTransaction = async (req, res) => {
   try {
     const { id } = req.params;
     let transactions = await transaction.findOne({
-      where: {  
+      where: {
         id,
       },
-      
+
       include: [
         {
           model: user,
           as: "user",
           attributes: {
-            exclude: ["image","listAs","createdAt", "updatedAt", "idUser","password"],
+            exclude: ["image", "listAs", "createdAt", "updatedAt", "idUser", "password"],
           },
         },
+
+      ],
+      attributes: {
+        exclude: ["idUser", "createdAt", "updatedAt"],
+      },
+    });
+
+    let orders = await order.findOne({
+      where: {
+        idTransaction: transactions.id
+
+      },
+      attributes: {
+        exclude: ["id", "productsId", "transactionsId", "createdAt", "updatedAt"],
+      },
+      include: [
         {
-          model: order,
-          as: "order",
+          model: product,
+          as: "product",
           attributes: {
-            exclude: [ "idTransaction","idProduct", "createdAt", "updatedAt", "idUser"],
+            exclude: ["id", "idProduct", "idUser", "createdAt", "updatedAt"],
+          },
+        },
+
+        {
+          model: topingProduct,
+          as: "topingProduct",
+          attributes: {
+            exclude: ["idProduct", "createdAt", "idToping", "idOrder", "updatedAt"],
           },
           include: [
             {
-            model: product,
-            as: "product",
-            attributes: {
-              exclude: ["id","idProduct","idUser", "createdAt", "updatedAt"],
-            },
-          },
-
-          {
-            model: topingProduct,
-            as: "topingProduct",
-            attributes: {
-              exclude: ["idProduct", "createdAt", "idToping","idOrder","updatedAt"],
-            },
-            include:[
-                      {
-                        model: toping,
-                        as: "toping",
-                        attributes: {
-                          exclude: [ "image","price","idUser","idToping","idOrder", "createdAt", "updatedAt"],
-                        },
-                        }
-                    ]
-          },
-        ],
+              model: toping,
+              as: "toping",
+              attributes: {
+                exclude: ["image", "price", "idUser", "idToping", "idOrder", "createdAt", "updatedAt"],
+              },
+            }
+          ]
         },
       ],
-      attributes: {
-        exclude: [ "idUser" ,"createdAt", "updatedAt"],
+    })
+
+    transactions = JSON.parse(JSON.stringify(transactions))
+    transactions = {
+      ...transactions,
+      attachment: transactions.attachment ? path + transactions.attachment : null,
+    }
+
+    orders = JSON.parse(JSON.stringify(orders))
+    orders = {
+      ...orders,
+      product: {
+        ...orders.product,
+        image: orders.product.image ? path + orders.product.image : null,
       },
-    });
-   
-    transactions = JSON.parse(JSON.stringify(transactions));
-    
+    }
+
     res.send({
       status: "success...",
       data: {
-        ...transactions,
+        transactions, orders
       },
     });
-   
+
   } catch (error) {
     console.log(error);
     res.send({
@@ -261,12 +305,12 @@ exports.updateTransaction = async (req, res) => {
     data = {
       ...data,
       attachment
-  }
-  console.log(data)  
+    }
+    console.log(data)
 
     await transaction.update(data, {
-          where: {
-            id,
+      where: {
+        id,
       },
     });
     let transactions = await transaction.findOne({
@@ -274,7 +318,7 @@ exports.updateTransaction = async (req, res) => {
         id,
       },
       attributes: {
-        exclude: ["idUser" , "createdAt", "updatedAt"],
+        exclude: ["idUser", "createdAt", "updatedAt"],
       },
     });
     transactions = JSON.parse(JSON.stringify(transactions));
@@ -285,21 +329,21 @@ exports.updateTransaction = async (req, res) => {
         attachment: path + transactions.attachment,
       },
     });
-   
+
   } catch (error) {
     // console.log(error)
     res.status(500).send({
       status: "failed",
       message: "internal server error",
     });
-  } 
+  }
 };
 
 exports.deleteTransaction = async (req, res) => {
   try {
     const { id } = req.params;
 
-    await transaction.destroy({  
+    await transaction.destroy({
       where: {
         id,
       },
@@ -312,8 +356,8 @@ exports.deleteTransaction = async (req, res) => {
     res.send({
       status: "success",
       message: `Delete transaction id: ${id} finished`,
-      data:{
-        id:id
+      data: {
+        id: id
       }
     });
   } catch (error) {
